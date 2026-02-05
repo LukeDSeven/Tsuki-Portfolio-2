@@ -1,18 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { ArrowDown } from 'lucide-react';
-import { ShowreelModal } from './ShowreelModal';
-
-// --- CONFIGURAÇÃO DA MÁSCARA (SHAPE) ---
-
-// OPÇÃO 1: Imagem PNG (Textura/Brush/Grunge)
-const MASK_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Brush_stroke.png/800px-Brush_stroke.png";
 
 // CONFIGURAÇÃO DO VÍDEO
+// Assumindo que o vídeo está na raiz da pasta public com o nome 'video.mp4'
 const BACKGROUND_VIDEO_URL = "/video.mp4";
-const FULL_SHOWREEL_URL = "/video.mp4";
 
 export const Hero: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +32,16 @@ export const Hero: React.FC = () => {
       onMouseMove={handleMouseMove}
       className="relative w-full min-h-screen flex flex-col items-center justify-center bg-[#E8E8E6] overflow-hidden py-20"
     >
+      {/* SVG Clip Path Definition */}
+      <svg className="absolute w-0 h-0" aria-hidden="true">
+        <defs>
+          <clipPath id="hero-clip" clipPathUnits="objectBoundingBox">
+            {/* Organic/Rough Rectangle Shape */}
+            <path d="M0.04 0.12 C 0.15 0.02 0.35 -0.01 0.55 0.02 C 0.75 0.05 0.96 0.08 0.98 0.25 C 1.00 0.45 0.97 0.65 0.94 0.85 C 0.92 0.95 0.85 0.99 0.65 0.98 C 0.45 0.97 0.25 0.99 0.10 0.92 C 0.02 0.88 -0.02 0.65 0.01 0.45 C 0.02 0.30 0.00 0.20 0.04 0.12 Z" />
+          </clipPath>
+        </defs>
+      </svg>
+
       <div 
         className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-multiply"
         style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/stardust.png")` }}
@@ -46,7 +49,7 @@ export const Hero: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-[1800px] px-4 md:px-6 flex flex-col items-center justify-center">
         
-        {/* Container do Vídeo Mascarado */}
+        {/* Container do Vídeo Mascarado via SVG */}
         <div 
           className="relative w-full max-w-[98vw] md:max-w-[96vw] aspect-[16/9] md:aspect-[2.6/1] transition-transform duration-700 ease-out pointer-events-none"
           style={{ 
@@ -54,16 +57,10 @@ export const Hero: React.FC = () => {
           }}
         >
           <div 
-             className="w-full h-full bg-slate-900 transition-transform duration-500 relative overflow-hidden"
+             className="w-full h-full flex items-center justify-center transition-transform duration-500 relative bg-black/5"
              style={{
-               maskImage: `url('${MASK_IMAGE_URL}')`,
-               WebkitMaskImage: `url('${MASK_IMAGE_URL}')`,
-               maskSize: 'contain', 
-               WebkitMaskSize: 'contain',
-               maskRepeat: 'no-repeat',
-               WebkitMaskRepeat: 'no-repeat',
-               maskPosition: 'center',
-               WebkitMaskPosition: 'center',
+               clipPath: 'url(#hero-clip)',
+               WebkitClipPath: 'url(#hero-clip)',
              }}
           >
              {!videoError ? (
@@ -73,7 +70,7 @@ export const Hero: React.FC = () => {
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover scale-110" // scale-110 ensures coverage of the irregular edges
                 onError={(e) => {
                   console.error("Erro ao carregar vídeo:", e);
                   setVideoError(true);
@@ -82,47 +79,14 @@ export const Hero: React.FC = () => {
                 <source src={BACKGROUND_VIDEO_URL} type="video/mp4" />
               </video>
              ) : (
-               <div className="w-full h-full bg-slate-800 flex items-center justify-center text-white/50 font-mono text-sm p-4 text-center">
-                  VIDEO NOT FOUND: /public/video.mp4
+               <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white/50 font-mono text-sm p-4 text-center">
+                  VIDEO ERROR
                </div>
              )}
-            
-            <div className="absolute inset-0 bg-black/50 transition-opacity duration-300 pointer-events-none" />
+             
+             {/* Optional grain overlay inside the shape */}
+             <div className="absolute inset-0 bg-black/10 mix-blend-overlay pointer-events-none" />
           </div>
-        </div>
-
-        {/* Updated Main CTA: PLAY */}
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 focus:outline-none cursor-pointer w-full"
-          aria-label="Play Showreel"
-          style={{ 
-            transform: `translate(calc(-50% + ${mousePos.x * 20}px), calc(-50% + ${mousePos.y * 20}px))` 
-          }}
-        >
-          <div className="text-white drop-shadow-lg flex justify-center">
-            <h1 className="text-[12vw] md:text-[10vw] leading-[0.9] font-hand font-bold tracking-wide opacity-100 relative overflow-hidden transform -rotate-2 py-4 px-8">
-              <span className="block transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full group-hover:opacity-0 group-hover:blur-sm">
-                PLAY
-              </span>
-              <span className="absolute top-4 left-0 w-full text-center transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] translate-y-full opacity-0 blur-sm group-hover:translate-y-0 group-hover:opacity-100 group-hover:blur-0 text-violet-400">
-                PLAY
-              </span>
-            </h1>
-          </div>
-        </button>
-
-        {/* Decoration Elements */}
-        <div className="absolute top-[20%] right-[5%] hidden lg:block mix-blend-multiply animate-fade-in opacity-0" style={{ animationDelay: '0.5s' }}>
-          <p className="font-display font-bold text-slate-800 text-lg rotate-12 bg-white/50 backdrop-blur px-4 py-2">
-            PURE • VISUAL • NOISE
-          </p>
-        </div>
-
-        <div className="absolute bottom-[20%] left-[5%] hidden lg:block mix-blend-multiply animate-fade-in opacity-0" style={{ animationDelay: '0.7s' }}>
-           <div className="w-24 h-24 rounded-full border border-slate-900 flex items-center justify-center animate-[spin_10s_linear_infinite]">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-900">Showreel • 2026 • </span>
-           </div>
         </div>
 
       </div>
@@ -136,12 +100,6 @@ export const Hero: React.FC = () => {
           <ArrowDown size={20} className="animate-bounce" />
         </button>
       </div>
-
-      <ShowreelModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        videoSrc={FULL_SHOWREEL_URL} 
-      />
 
     </section>
   );
