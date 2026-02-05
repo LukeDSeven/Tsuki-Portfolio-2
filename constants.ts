@@ -6,7 +6,7 @@ export const SITE_CONFIG = {
   tagline: "Indie motion & 2D animation for music.",
   email: "", // Removed email
   socials: {
-    instagram: "https://www.instagram.com/tsukistudio.co/",
+    instagram: "https://www.instagram.com/studiotsuki.co/",
     twitter: "https://x.com/studiotsuki",
     // Vimeo removed
   },
